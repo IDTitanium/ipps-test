@@ -4,8 +4,10 @@ namespace App\Listeners;
 
 use App\Enums\AchievementType;
 use App\Events\AchievementUnlocked;
+use App\Events\BadgeUnlocked;
 use App\Events\CommentWritten;
 use App\Helpers\AchievementMapper;
+use App\Helpers\BadgeMapper;
 use App\Models\Comment;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
@@ -39,10 +41,10 @@ class CommentWrittenListener implements ShouldQueue
     private function checkForNewAchievementUnlocked(Comment $comment): void {
         $user = $comment->user()->first();
 
-        $achievement = AchievementMapper::getByCount($user->getTotalCommentsAttribute(), AchievementType::COMMENT->value);
+        $achievement = AchievementMapper::getByCount($user->total_comments, AchievementType::COMMENT->value);
 
         if ($achievement) {
-            event(new AchievementUnlocked($user, $achievement));
+            event(new AchievementUnlocked($achievement, $user));
         }
     }
 
@@ -52,7 +54,15 @@ class CommentWrittenListener implements ShouldQueue
      * @return void
      */
     private function checkForNewBadgeUnlocked(Comment $comment): void {
+        $user = $comment->user()->first();
 
+        $achievementCount = $user->total_comments + $user->total_watched;
+
+        $badge = BadgeMapper::getByCount($achievementCount);
+
+        if ($badge) {
+            event(new BadgeUnlocked($badge, $user));
+        }
     }
 
 }
