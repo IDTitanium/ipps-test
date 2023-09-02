@@ -21,7 +21,7 @@ class AchievementMapper
      *
      * @return string|null
      */
-    public static function getByCount(int $countOfAchievement, string $type = AchievementType::COMMENT): string|null {
+    public static function getByCount(int $countOfAchievement, string $type): string|null {
         return static::achievements()[$type][$countOfAchievement] ?? null;
     }
 }
