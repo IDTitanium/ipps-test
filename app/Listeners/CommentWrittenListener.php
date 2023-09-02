@@ -38,7 +38,8 @@ class CommentWrittenListener implements ShouldQueue
      *
      * @return void
      */
-    private function checkForNewAchievementUnlocked(Comment $comment): void {
+    private function checkForNewAchievementUnlocked(Comment $comment): void
+    {
         $user = $comment->user()->first();
 
         $achievement = AchievementMapper::getByCount($user->total_comments, AchievementType::COMMENT->value);
@@ -53,7 +54,8 @@ class CommentWrittenListener implements ShouldQueue
      *
      * @return void
      */
-    private function checkForNewBadgeUnlocked(Comment $comment): void {
+    private function checkForNewBadgeUnlocked(Comment $comment): void
+    {
         $user = $comment->user()->first();
 
         $achievementCount = $user->total_comments + $user->total_watched;
