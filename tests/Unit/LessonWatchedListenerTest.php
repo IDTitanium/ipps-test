@@ -6,6 +6,7 @@ use App\Events\AchievementUnlocked;
 use App\Events\BadgeUnlocked;
 use App\Events\LessonWatched;
 use App\Listeners\LessonWatchedListener;
+use App\Models\Achievement;
 use App\Models\Comment;
 use App\Models\Lesson;
 use App\Models\User;
@@ -144,7 +145,7 @@ class LessonWatchedListenerTest extends TestCase
         Event::assertNothingDispatched();
 
         /**
-         * Create four lessons and attached it to a user
+         * Create three lessons and attached it to a user
          */
         $lessons = Lesson::factory(3)->create();
 
@@ -165,5 +166,48 @@ class LessonWatchedListenerTest extends TestCase
          * Check if BadgeUnlocked event was fired
          */
         Event::assertNotDispatched(BadgeUnlocked::class);
+    }
+
+    /**
+     * Can store user achievement in the database
+     */
+    public function test_can_store_user_achievement_in_the_database(): void
+    {
+        Event::fake();
+
+        Event::assertNothingDispatched();
+
+        /**
+         * Create the lesson and attached it to a user
+         */
+        $lesson = Lesson::factory()->create();
+
+        $user = User::factory()->create();
+
+        $user->watched()->sync([$lesson->id]);
+
+        /**
+         * Create an instance of the event and manually trigger the listener
+         */
+        $event = new LessonWatched($lesson, $user);
+
+        $listener = new LessonWatchedListener();
+
+        $listener->handle($event);
+
+        /**
+         * Check if AchievementUnlocked event was fired with the right properties
+         */
+        Event::assertDispatched(function (AchievementUnlocked $event) use($user) {
+            return $event->achievement_name === config('achievements.watched.1')
+                    && $event->user === $user;
+        });
+
+        $achievement = Achievement::where('name', config('achievements.watched.1'))->first();
+
+        $this->assertDatabaseHas('achievement_user', [
+            'user_id' => $user->id,
+            'achievement_id' => $achievement->id
+        ]);
     }
 }

@@ -6,7 +6,9 @@ use App\Events\AchievementUnlocked;
 use App\Events\BadgeUnlocked;
 use App\Events\CommentWritten;
 use App\Listeners\CommentWrittenListener;
+use App\Models\Achievement;
 use App\Models\Comment;
+use App\Models\User;
 use Tests\TestCase;
 use Tests\Helpers\CommentWrittenEventTestHelper;
 use Illuminate\Support\Facades\Event;
@@ -103,5 +105,34 @@ class CommentWrittenListenerTest extends TestCase
         $listener->handle($event);
 
         Event::assertNotDispatched(BadgeUnlocked::class);
+    }
+
+    /**
+     * Can store user achievement in the database
+     */
+    public function test_can_store_user_achievement_in_the_database(): void
+    {
+        Event::fake();
+
+        Event::assertNothingDispatched();
+
+        $comment = Comment::factory()->create();
+
+        $event = new CommentWritten($comment);
+
+        $listener = new CommentWrittenListener();
+
+        $listener->handle($event);
+
+        $achievement = Achievement::where('name', config('achievements.comment.1'))->first();
+
+        Event::assertDispatched(function (AchievementUnlocked $event) {
+            return $event->achievement_name === config('achievements.comment.1');
+        });
+
+        $this->assertDatabaseHas('achievement_user', [
+            'user_id' => $comment->user_id,
+            'achievement_id' => $achievement->id
+        ]);
     }
 }

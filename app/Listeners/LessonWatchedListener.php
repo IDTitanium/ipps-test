@@ -10,6 +10,7 @@ use App\Helpers\AchievementMapper;
 use App\Helpers\BadgeMapper;
 use App\Models\Lesson;
 use App\Models\User;
+use App\Repositories\AchievementRepository;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
 
@@ -42,6 +43,8 @@ class LessonWatchedListener implements ShouldQueue
         $achievement = AchievementMapper::getByCount($user->total_watched, AchievementType::WATCHED->value);
 
         if ($achievement) {
+            app(AchievementRepository::class)->createUserAchievementByName($user, $achievement, AchievementType::WATCHED->value);
+
             event(new AchievementUnlocked($achievement, $user));
         }
     }
