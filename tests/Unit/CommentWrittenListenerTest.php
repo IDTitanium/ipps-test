@@ -3,6 +3,7 @@
 namespace Tests\Unit;
 
 use App\Events\AchievementUnlocked;
+use App\Events\BadgeUnlocked;
 use App\Events\CommentWritten;
 use App\Listeners\CommentWrittenListener;
 use App\Models\Comment;
@@ -68,5 +69,39 @@ class CommentWrittenListenerTest extends TestCase
         $listener->handle($event);
 
         Event::assertNotDispatched(AchievementUnlocked::class);
+    }
+
+    public function test_event_dispatched_when_badge_level_is_reached(): void
+    {
+        Event::fake();
+
+        Event::assertNothingDispatched();
+
+        $comment = Comment::factory(4)->singleUser()->create();
+
+        $event = new CommentWritten($comment->first());
+
+        $listener = new CommentWrittenListener();
+
+        $listener->handle($event);
+
+        Event::assertDispatched(BadgeUnlocked::class);
+    }
+
+    public function test_event_not_dispatched_when_badge_level_is_not_reached(): void
+    {
+        Event::fake();
+
+        Event::assertNothingDispatched();
+
+        $comment = Comment::factory(3)->singleUser()->create();
+
+        $event = new CommentWritten($comment->first());
+
+        $listener = new CommentWrittenListener();
+
+        $listener->handle($event);
+
+        Event::assertNotDispatched(BadgeUnlocked::class);
     }
 }
