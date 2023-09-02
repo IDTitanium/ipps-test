@@ -10,6 +10,7 @@ use App\Helpers\AchievementMapper;
 use App\Helpers\BadgeMapper;
 use App\Models\Comment;
 use App\Repositories\AchievementRepository;
+use App\Repositories\BadgeRepository;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
 
@@ -66,6 +67,8 @@ class CommentWrittenListener implements ShouldQueue
         $badge = BadgeMapper::getByCount($achievementCount);
 
         if ($badge) {
+            app(BadgeRepository::class)->createUserBadgeByName($user, $badge);
+
             event(new BadgeUnlocked($badge, $user));
         }
     }

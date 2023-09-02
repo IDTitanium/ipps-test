@@ -11,6 +11,7 @@ use App\Helpers\BadgeMapper;
 use App\Models\Lesson;
 use App\Models\User;
 use App\Repositories\AchievementRepository;
+use App\Repositories\BadgeRepository;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
 
@@ -59,6 +60,8 @@ class LessonWatchedListener implements ShouldQueue
         $badge = BadgeMapper::getByCount($totalAchievements);
 
         if ($badge) {
+            app(BadgeRepository::class)->createUserBadgeByName($user, $badge);
+
             event(new BadgeUnlocked($badge, $user));
         }
     }

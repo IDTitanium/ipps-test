@@ -7,6 +7,7 @@ use App\Events\BadgeUnlocked;
 use App\Events\LessonWatched;
 use App\Listeners\LessonWatchedListener;
 use App\Models\Achievement;
+use App\Models\Badge;
 use App\Models\Comment;
 use App\Models\Lesson;
 use App\Models\User;
@@ -208,6 +209,46 @@ class LessonWatchedListenerTest extends TestCase
         $this->assertDatabaseHas('achievement_user', [
             'user_id' => $user->id,
             'achievement_id' => $achievement->id
+        ]);
+    }
+
+    /**
+     * Can store badge in the database when badge is unlocked
+     */
+    public function test_can_store_badge_in_the_database(): void
+    {
+        Event::fake();
+
+        Event::assertNothingDispatched();
+
+        /**
+         * Create four lessons and attached it to a user
+         */
+        $lessons = Lesson::factory(4)->create();
+
+        $user = User::factory()->create();
+
+        $user->watched()->sync($lessons->pluck('id')->toArray());
+
+        /**
+         * Create an instance of the event and manually trigger the listener
+         */
+        $event = new LessonWatched($lessons->first(), $user);
+
+        $listener = new LessonWatchedListener();
+
+        $listener->handle($event);
+
+        /**
+         * Check if BadgeUnlocked event was fired
+         */
+        Event::assertDispatched(BadgeUnlocked::class);
+
+        $badge = Badge::where('name', config('badges.4'))->first();
+
+        $this->assertDatabaseHas('badge_user', [
+            'user_id' => $user->id,
+            'badge_id' => $badge->id
         ]);
     }
 }

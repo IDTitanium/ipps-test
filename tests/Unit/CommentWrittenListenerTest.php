@@ -7,6 +7,7 @@ use App\Events\BadgeUnlocked;
 use App\Events\CommentWritten;
 use App\Listeners\CommentWrittenListener;
 use App\Models\Achievement;
+use App\Models\Badge;
 use App\Models\Comment;
 use App\Models\User;
 use Tests\TestCase;
@@ -133,6 +134,33 @@ class CommentWrittenListenerTest extends TestCase
         $this->assertDatabaseHas('achievement_user', [
             'user_id' => $comment->user_id,
             'achievement_id' => $achievement->id
+        ]);
+    }
+
+    /**
+     * Can store badge in the database when badge is unlocked
+     */
+    public function test_can_store_badge_in_the_database(): void
+    {
+        Event::fake();
+
+        Event::assertNothingDispatched();
+
+        $comment = Comment::factory(4)->singleUser()->create();
+
+        $event = new CommentWritten($comment->first());
+
+        $listener = new CommentWrittenListener();
+
+        $listener->handle($event);
+
+        Event::assertDispatched(BadgeUnlocked::class);
+
+        $badge = Badge::where('name', config('badges.4'))->first();
+
+        $this->assertDatabaseHas('badge_user', [
+            'user_id' => $comment->first()->user_id,
+            'badge_id' => $badge->id
         ]);
     }
 }
