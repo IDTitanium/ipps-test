@@ -9,6 +9,7 @@ use App\Events\CommentWritten;
 use App\Helpers\AchievementMapper;
 use App\Helpers\BadgeMapper;
 use App\Models\Comment;
+use App\Repositories\AchievementRepository;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
 
@@ -45,6 +46,8 @@ class CommentWrittenListener implements ShouldQueue
         $achievement = AchievementMapper::getByCount($user->total_comments, AchievementType::COMMENT->value);
 
         if ($achievement) {
+            app(AchievementRepository::class)->createUserAchievementByName($user, $achievement, AchievementType::COMMENT->value);
+
             event(new AchievementUnlocked($achievement, $user));
         }
     }

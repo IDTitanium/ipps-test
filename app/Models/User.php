@@ -64,6 +64,24 @@ class User extends Authenticatable
     }
 
     /**
+     * Get the achievements earned by the user
+     *
+     * @return BelongsToMany
+     */
+    public function achievements(): BelongsToMany {
+        return $this->belongsToMany(Achievement::class, 'achievement_user', 'user_id', 'achievement_id')->withTimestamps();
+    }
+
+    /**
+     * Get the badges earned by the user
+     *
+     * @return BelongsToMany
+     */
+    public function badges(): BelongsToMany {
+        return $this->belongsToMany(Badge::class, 'badge_user', 'user_id', 'badge_id')->withTimestamps();
+    }
+
+    /**
      * Get total count of comments written by the user
      *
      * @return int
