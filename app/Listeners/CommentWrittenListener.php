@@ -2,7 +2,9 @@
 
 namespace App\Listeners;
 
+use App\Events\AchievementUnlocked;
 use App\Events\CommentWritten;
+use App\Helpers\AchievementMapper;
 use App\Models\Comment;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
@@ -34,7 +36,11 @@ class CommentWrittenListener
     private function checkForNewAchievementUnlocked(Comment $comment): void {
         $user = $comment->user()->first();
 
+        $achievement = AchievementMapper::getByCount($user->getTotalCommentsAttribute());
 
+        if ($achievement) {
+            event(new AchievementUnlocked($user, $achievement));
+        }
     }
 
     /**
