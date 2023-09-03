@@ -25,6 +25,8 @@ class AchievementControllerTest extends TestCase
 
         $this->assertNotEmpty($body);
         $this->assertNotEmpty($body['next_available_achievements']);
+        $this->assertTrue(in_array(config('achievements.comment.1'), $body['next_available_achievements']));
+        $this->assertTrue(in_array(config('achievements.watched.1'), $body['next_available_achievements']));
     }
 
     /**
@@ -59,5 +61,8 @@ class AchievementControllerTest extends TestCase
         $this->assertNotEmpty($body);
         $this->assertNotNull($body['current_badge']);
         $this->assertNotNull($body['next_badge']);
+        $this->assertEquals(config('badges.0'), $body['current_badge']);
+        $this->assertEquals(config('badges.4'), $body['next_badge']);
+        $this->assertEquals($body['remaining_to_unlock_next_badge'], 4);
     }
 }

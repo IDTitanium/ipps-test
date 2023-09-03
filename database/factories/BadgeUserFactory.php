@@ -27,7 +27,7 @@ class BadgeUserFactory extends Factory
 
         return [
             'user_id' => $user->id,
-            'badge_id' => Badge::skip(1)->first()->id
+            'badge_id' => Badge::first()->id
         ];
     }
 
