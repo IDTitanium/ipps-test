@@ -46,7 +46,7 @@ class AchievementRepository
      */
     public function getUnlockedAchievements(User $user): array
     {
-        return $user->achievements()->get()->toArray();
+        return $user->achievements()->get()->pluck('name')->toArray();
     }
 
     /**

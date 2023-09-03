@@ -134,6 +134,10 @@ class User extends Authenticatable
             return 0;
         }
 
+        if ($this->getTotalAchievementAttribute() > $this->nextBadge()->count_required) {
+            return 0;
+        }
+
         return $this->nextBadge()->count_required - $this->getTotalAchievementAttribute();
     }
 }
