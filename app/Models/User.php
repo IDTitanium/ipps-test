@@ -98,4 +98,42 @@ class User extends Authenticatable
     public function getTotalWatchedAttribute(): int {
         return $this->watched()->count();
     }
+
+    /**
+     * Get total count of achievements by the user
+     *
+     * @return int
+     */
+    public function getTotalAchievementAttribute(): int {
+        return $this->achievements()->count();
+    }
+
+    /**
+     * Get current badge for user
+     *
+     * @return Badge|null
+     */
+    public function currentBadge(): ?Badge {
+        return $this->badges()->latest()->first();
+    }
+
+    /**
+     * Get next badge for user
+     *
+     * @return Badge|null
+     */
+    public function nextBadge(): ?Badge {
+        return Badge::where('badges.id', '>', $this->currentBadge()?->id ?? 0)->first();
+    }
+
+    /**
+     * Get remaming count of achievements to unlocked next badge
+     */
+    public function remainingToUnlockNextBadge(): ?int {
+        if (!$this->nextBadge()) {
+            return 0;
+        }
+
+        return $this->nextBadge()->count_required - $this->getTotalAchievementAttribute();
+    }
 }
