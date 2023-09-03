@@ -10,12 +10,19 @@ use App\Models\Achievement;
 use App\Models\Badge;
 use App\Models\Comment;
 use App\Models\User;
+use Illuminate\Support\Facades\Artisan;
 use Tests\TestCase;
 use Tests\Helpers\CommentWrittenEventTestHelper;
 use Illuminate\Support\Facades\Event;
 
 class CommentWrittenListenerTest extends TestCase
 {
+    protected function setUp(): void {
+        parent::setUp();
+
+        Artisan::call('db:seed');
+    }
+
     /**
      * Can listen for comment written event
      */

@@ -11,12 +11,19 @@ use App\Models\Badge;
 use App\Models\Comment;
 use App\Models\Lesson;
 use App\Models\User;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Event;
 use Tests\TestCase;
 use Tests\Helpers\LessonWatchedEventTestHelper;
 
 class LessonWatchedListenerTest extends TestCase
 {
+    protected function setUp(): void {
+        parent::setUp();
+
+        Artisan::call('db:seed');
+    }
+
     /**
      * Can listen for lesson watched event
      */

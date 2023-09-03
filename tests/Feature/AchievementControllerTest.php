@@ -8,10 +8,17 @@ use App\Models\BadgeUser;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
+use Illuminate\Support\Facades\Artisan;
 use Tests\TestCase;
 
 class AchievementControllerTest extends TestCase
 {
+    protected function setUp(): void {
+        parent::setUp();
+
+        Artisan::call('db:seed');
+    }
+
     /**
      * Can get next achievements from endpoint.
      */
